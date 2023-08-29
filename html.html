@@ -1,0 +1,26 @@
+html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Job Crawler</title>
+    <style>
+        .job-listing {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Job Crawler</h1>
+    <form id="search-form">
+        <label for="keywords">Gesuchte Fähigkeiten:</label>
+        <input type="text" id="keywords" name="keywords" placeholder="Geben Sie Fähigkeiten ein..." required>
+        <button type="submit">Suchen</button>
+    </form>
+
+    <div id="job-listings"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
