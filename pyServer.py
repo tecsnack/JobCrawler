@@ -1,8 +1,12 @@
-python
 import requests
 from bs4 import BeautifulSoup
 import csv
 import operator
+from fuzzywuzzy import fuzz
+from difflib import get_close_matches
+
+# Synonyme und Variationen der Fähigkeiten
+keywords = ['Python', 'Webentwicklung', 'Datenbanken', 'Frontend-Entwicklung', 'Programmierung']
 
 def crawl_job_sites(keywords):
     job_sites = ['https://example1.com', 'https://example2.com']  # Liste der Jobbörsen-Websites
@@ -26,23 +30,18 @@ def crawl_job_sites(keywords):
                 job_link = job.find('a')['href']
 
                 # Überprüfe, ob das Jobangebot den gesuchten Fähigkeiten entspricht
-                if any(keyword in job_description for keyword in keywords):
+                matched_keywords = []
+                for keyword in keywords:
+                    if keyword in job_description:
+                        matched_keywords.append(keyword)
+                    elif any(fuzz.partial_ratio(keyword, skill) >= 80 for skill in job_description.split()):
+                        matched_keywords.append(keyword)
+                    elif get_close_matches(keyword, job_description.split(), n=1, cutoff=0.8):
+                        matched_keywords.append(keyword)
+
+                if matched_keywords:
                     writer.writerow({'Jobtitel': job_title, 'Beschreibung': job_description,
                                      'Unternehmen': company, 'Veröffentlicht am': posted_date, 'Link': job_link})
 
-    # Öffne die CSV-Datei im Lese-Modus und lies den Inhalt ein
-    with open('job_listings.csv', 'r') as file:
-        reader = csv.reader(file)
-        data = list(reader)
-
-    # Sortiere die Daten nach dem Jobtitel (erstes Element jeder Zeile)
-    sorted_data = sorted(data, key=operator.itemgetter(0))
-
-    # Öffne die CSV-Datei im Schreib-Modus und schreibe die sortierten Daten zurück
-    with open('job_listings.csv', 'w', newline='', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerows(sorted_data)
-
 # Beispielaufruf des Crawlers mit den gewünschten Fähigkeiten
-keywords = ['Python', 'Webentwicklung', 'Datenbanken']
 crawl_job_sites(keywords)
